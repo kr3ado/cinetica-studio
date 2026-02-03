@@ -1,5 +1,5 @@
 // Cinetica Webflow custom code (migrado desde Slater)
-// Última actualización: 2026-01-16
+// Última actualización: 2026-02-03
 
 
 function initCookieConsent() {
@@ -278,136 +278,144 @@ function initDynamicCurrentDate() {
 
 function initHorizontalScrollNarrative() {
 
-  function wrapWords(el) {
-    const text = el.textContent.trim();
-    el.innerHTML = text
-      .split(/\s+/)
-      .map(word => `<span class="word"><span>${word}</span></span>`)
-      .join(" ");
-  }
+  const ctx = gsap.context(() => {
 
-  ScrollTrigger.matchMedia({
+    function wrapWords(el) {
+      const text = el.textContent.trim();
+      el.innerHTML = text
+        .split(/\s+/)
+        .map(word => `<span class="word"><span>${word}</span></span>`)
+        .join(" ");
+    }
 
-    /* =====================================
-       DESKTOP + TABLET
-    ===================================== */
-    "(min-width: 768px)": function () {
+    ScrollTrigger.matchMedia({
 
-      const stage = document.querySelector(".scroll-stage");
-      const wrapper = document.querySelector(".hs-wrapper");
-      const track = document.querySelector(".hs-track");
-      const dsSection = wrapper.querySelector(".ds-section");
+      /* =====================================
+         DESKTOP + TABLET
+      ===================================== */
+      "(min-width: 768px)": function () {
 
-      const texts = [...dsSection.querySelectorAll(".ds-text")];
-      const nums  = [...dsSection.querySelectorAll(".ds-num")];
-      const imgs  = [...dsSection.querySelectorAll(".ds-mediaimg")];
+        const stage = document.querySelector(".scroll-stage");
+        const wrapper = document.querySelector(".hs-wrapper");
+        const track = document.querySelector(".hs-track");
+        const dsSection = wrapper.querySelector(".ds-section");
 
-      const imgByStep = {};
-      imgs.forEach(img => {
-        const step = Number(img.dataset.step);
-        if (!Number.isNaN(step)) imgByStep[step] = img;
-      });
+        if (!stage || !wrapper || !track || !dsSection) return;
 
-      texts.forEach(el => wrapWords(el));
+        const texts = [...dsSection.querySelectorAll(".ds-text")];
+        const nums  = [...dsSection.querySelectorAll(".ds-num")];
+        const imgs  = [...dsSection.querySelectorAll(".ds-mediaimg")];
 
-      gsap.set(imgs, { autoAlpha: 0, scale: 0.95 });
-      if (imgByStep[0]) {
-        gsap.set(imgByStep[0], { autoAlpha: 1, scale: 1 });
-      }
-
-      const tl = gsap.timeline({ paused: true });
-
-      // pausa inicial
-      tl.to({}, { duration: 0.6 });
-
-      texts.forEach((text, step) => {
-        const nextText = texts[step + 1];
-        if (!nextText) return;
-
-        const currentNum = nums[step]     ?? null;
-        const nextNum    = nums[step + 1] ?? null;
-
-        const currentImg = imgByStep[step]     ?? null;
-        const nextImg    = imgByStep[step + 1] ?? null;
-
-        tl.to(text.querySelectorAll(".word span"), {
-          y: "100%",
-          stagger: 0.14,
-          duration: 1,
-          ease: "power4.in"
+        const imgByStep = {};
+        imgs.forEach(img => {
+          const step = Number(img.dataset.step);
+          if (!Number.isNaN(step)) imgByStep[step] = img;
         });
 
-        if (currentNum) {
-          tl.to(currentNum, {
-            y: "100%",
-            duration: 1,
-            ease: "power4.in"
-          }, "<");
+        texts.forEach(el => wrapWords(el));
+
+        gsap.set(imgs, { autoAlpha: 0, scale: 0.95 });
+        if (imgByStep[0]) {
+          gsap.set(imgByStep[0], { autoAlpha: 1, scale: 1 });
         }
 
-        tl.to(nextText.querySelectorAll(".word span"), {
-          y: "0%",
-          stagger: 0.14,
-          duration: 1,
-          ease: "power4.out"
-        }, "<");
+        const tl = gsap.timeline({ paused: true });
 
-        if (nextNum) {
-          tl.to(nextNum, {
+        // pausa inicial
+        tl.to({}, { duration: 0.6 });
+
+        texts.forEach((text, step) => {
+          const nextText = texts[step + 1];
+          if (!nextText) return;
+
+          const currentNum = nums[step]     ?? null;
+          const nextNum    = nums[step + 1] ?? null;
+
+          const currentImg = imgByStep[step]     ?? null;
+          const nextImg    = imgByStep[step + 1] ?? null;
+
+          tl.to(text.querySelectorAll(".word span"), {
+            y: "100%",
+            stagger: 0.14,
+            duration: 1,
+            ease: "power4.in"
+          });
+
+          if (currentNum) {
+            tl.to(currentNum, {
+              y: "100%",
+              duration: 1,
+              ease: "power4.in"
+            }, "<");
+          }
+
+          tl.to(nextText.querySelectorAll(".word span"), {
             y: "0%",
+            stagger: 0.14,
             duration: 1,
             ease: "power4.out"
           }, "<");
-        }
 
-        if (currentImg) {
-          tl.to(currentImg, {
-            autoAlpha: 0,
-            scale: 0.95,
-            duration: 0.6,
-            ease: "power2.out",
-            immediateRender: false
-          }, "<");
-        }
+          if (nextNum) {
+            tl.to(nextNum, {
+              y: "0%",
+              duration: 1,
+              ease: "power4.out"
+            }, "<");
+          }
 
-        if (nextImg) {
-          tl.to(nextImg, {
-            autoAlpha: 1,
-            scale: 1,
-            duration: 0.6,
-            ease: "power2.out",
-            immediateRender: false
-          }, "<");
-        }
-      });
+          if (currentImg) {
+            tl.to(currentImg, {
+              autoAlpha: 0,
+              scale: 0.95,
+              duration: 0.6,
+              ease: "power2.out",
+              immediateRender: false
+            }, "<");
+          }
 
-      // transición horizontal
-      tl.to(track, {
-        x: "-100vw",
-        ease: "none",
-        duration: 1.8
-      });
+          if (nextImg) {
+            tl.to(nextImg, {
+              autoAlpha: 1,
+              scale: 1,
+              duration: 0.6,
+              ease: "power2.out",
+              immediateRender: false
+            }, "<");
+          }
+        });
 
-      // hold final
-      tl.to({}, { duration: 1 });
+        // transición horizontal
+        tl.to(track, {
+          x: "-100vw",
+          ease: "none",
+          duration: 1.8
+        });
 
-      ScrollTrigger.create({
-        trigger: stage,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: true,
-        onUpdate: self => {
-          tl.progress(self.progress);
-        }
-      });
-    }
+        // hold final
+        tl.to({}, { duration: 1 });
 
-    /* =====================================
-       MOBILE
-       → NO HACEMOS NADA AQUÍ
-    ===================================== */
+        ScrollTrigger.create({
+          trigger: stage,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: true,
+          onUpdate: self => {
+            tl.progress(self.progress);
+          }
+        });
+      }
+
+      /* =====================================
+         MOBILE
+         → NO HACEMOS NADA AQUÍ
+      ===================================== */
+
+    });
 
   });
+
+  return ctx;
 }
 
 function initUnicornStudio(){
@@ -1618,6 +1626,10 @@ document.addEventListener("DOMContentLoaded", () => {
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
 
+  ScrollTrigger.config({
+    ignoreMobileResize: true
+  });
+
   initCookieConsent();
   initMenuButton();
   initMenu();
@@ -1641,4 +1653,30 @@ document.addEventListener("DOMContentLoaded", () => {
   initVimeoLightboxAdvanced();
   initCSSMarquee();
   initSplineIconAnimation();
+});
+
+let resizeTimeout;
+let isResizing = false;
+
+window.addEventListener("resize", () => {
+  isResizing = true;
+  clearTimeout(resizeTimeout);
+
+  resizeTimeout = setTimeout(() => {
+    isResizing = false;
+
+    // 1. Pausamos Lenis mientras recalcula
+    if (typeof lenis !== "undefined") {
+      lenis.stop();
+    }
+
+    // 2. Refrescamos ScrollTrigger (esto es LO MÁS IMPORTANTE)
+    ScrollTrigger.refresh(true);
+
+    // 3. Volvemos a activar Lenis
+    if (typeof lenis !== "undefined") {
+      lenis.start();
+    }
+
+  }, 300); // debounce → ajustable (250–400 va bien)
 });
